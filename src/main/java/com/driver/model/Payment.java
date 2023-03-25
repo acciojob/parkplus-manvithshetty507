@@ -9,6 +9,7 @@ public class Payment {
     private int id;
 
     private boolean paymentCompleted;
+    @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
 
     @OneToOne
