@@ -16,7 +16,7 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Reservation> reservationList = new ArrayList<>();
 
-    public User() {
+    public User(){
     }
 
     public User(int id, String name, String phoneNumber, String password, List<Reservation> reservationList) {

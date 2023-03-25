@@ -27,6 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         boolean isValid = false;
         PaymentMode paymentMode = null;
+
         if(mode.equals("cash") || mode.equals("card") || mode.equals("upi")){
             isValid = true;
             if(mode.equals("cash")) paymentMode = PaymentMode.CASH;
@@ -35,6 +36,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         if(!isValid){
+            throw new Exception("Payment mode not detected");
+        }
+        if(paymentMode == null){
             throw new Exception("Payment mode not detected");
         }
 
