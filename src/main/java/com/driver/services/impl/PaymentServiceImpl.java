@@ -38,9 +38,6 @@ public class PaymentServiceImpl implements PaymentService {
         if(!isValid){
             throw new Exception("Payment mode not detected");
         }
-        if(paymentMode == null){
-            throw new Exception("Payment mode not detected");
-        }
 
         Payment payment = new Payment();
         payment.setPaymentCompleted(true);
