@@ -24,53 +24,55 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws Exception {
 
-        User user;
+        User user = null;
         try{
             user = userRepository3.findById(userId).get();
         }catch(Exception e){
             throw new Exception("Cannot make reservation");
         }
-        ParkingLot parkingLot;
+        ParkingLot parkingLot = null;
         try{
             parkingLot = parkingLotRepository3.findById(parkingLotId).get();
         }catch(Exception e){
             throw new Exception("Cannot make reservation");
         }
 
+        if(user == null || parkingLot == null) return null;
+
+
         try{
             List<Spot> spots = parkingLot.getSpotList();
+
             int minTime = Integer.MAX_VALUE;
-            int revSpot = -1;
+            int finalSpot = -1;
             int finalWheels = 0;
 
             for(Spot spot:spots) {
-                int wheels;
-                if (spot.getSpotType() == SpotType.TWO_WHEELER)
+                int wheels = 0;
+                if (spot.getSpotType().equals(SpotType.TWO_WHEELER))
                     wheels = 2;
-                else if (spot.getSpotType() == SpotType.FOUR_WHEELER)
+                else if (spot.getSpotType().equals(SpotType.FOUR_WHEELER))
                     wheels = 4;
                 else
                     wheels = 6;
 
-                if (wheels >= numberOfWheels) {
+                if (wheels >= numberOfWheels && !spot.getOccupied()) {
                     if (timeInHours * spot.getPricePerHour() < minTime) {
                         minTime = Math.min(minTime, timeInHours * spot.getPricePerHour());
-                        revSpot = spot.getId();
+                        finalSpot = spot.getId();
                         finalWheels = wheels;
                     }
                 }
             }
-            if(revSpot == -1){
+
+
+            if(finalSpot == -1){
                 throw new Exception("Cannot make reservation");
             }
 
+            Spot curSpot = spotRepository3.findById(finalSpot).get();
 
-            Spot curSpot = spotRepository3.findById(revSpot).get();
-
-            if(finalWheels == 0){
-                throw new Exception("Cannot make reservation");
-            }
-            else if(finalWheels == 2){
+            if(finalWheels == 2){
                 curSpot.setSpotType(SpotType.TWO_WHEELER);
             }
             else if(finalWheels == 4){
@@ -83,16 +85,20 @@ public class ReservationServiceImpl implements ReservationService {
 
             Reservation reservation = new Reservation();
             reservation.setNumberOfHours(timeInHours);
-            reservation.setUser(user);
             reservation.setSpot(curSpot);
+            reservation.setUser(user);
+
             user.getReservationList().add(reservation);
             curSpot.getReservationList().add(reservation);
 
+            userRepository3.save(user);
             return reservation;
 
         }catch(Exception e){
             return null;
         }
+
+
     }
 
 }
