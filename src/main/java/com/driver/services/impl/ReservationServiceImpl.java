@@ -39,7 +39,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         if(user == null || parkingLot == null) return null;
 
-
         try{
             List<Spot> spots = parkingLot.getSpotList();
 
@@ -49,14 +48,15 @@ public class ReservationServiceImpl implements ReservationService {
 
             for(Spot spot:spots) {
                 int wheels = 0;
-                if (spot.getSpotType().equals(SpotType.TWO_WHEELER))
+
+                if(spot.getSpotType().equals(SpotType.TWO_WHEELER))
                     wheels = 2;
-                else if (spot.getSpotType().equals(SpotType.FOUR_WHEELER))
+                else if(spot.getSpotType().equals(SpotType.FOUR_WHEELER))
                     wheels = 4;
                 else
                     wheels = 6;
 
-                if (wheels >= numberOfWheels && !spot.getOccupied()) {
+                if (wheels!= 0 && wheels >= numberOfWheels && !spot.getOccupied()) {
                     if (timeInHours * spot.getPricePerHour() < minTime) {
                         minTime = Math.min(minTime, timeInHours * spot.getPricePerHour());
                         finalSpot = spot.getId();
@@ -72,13 +72,13 @@ public class ReservationServiceImpl implements ReservationService {
 
             Spot curSpot = spotRepository3.findById(finalSpot).get();
 
-            if(finalWheels == 2){
-                curSpot.setSpotType(SpotType.TWO_WHEELER);
+            if(finalWheels > 4){
+                curSpot.setSpotType(SpotType.OTHERS);
             }
-            else if(finalWheels == 4){
+            else if(finalWheels > 2){
                 curSpot.setSpotType(SpotType.FOUR_WHEELER);
             }
-            else curSpot.setSpotType(SpotType.OTHERS);
+            else curSpot.setSpotType(SpotType.TWO_WHEELER);
 
             curSpot.setOccupied(true);
 
@@ -87,6 +87,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservation.setNumberOfHours(timeInHours);
             reservation.setSpot(curSpot);
             reservation.setUser(user);
+            spotRepository3.save(curSpot);
 
             user.getReservationList().add(reservation);
             curSpot.getReservationList().add(reservation);

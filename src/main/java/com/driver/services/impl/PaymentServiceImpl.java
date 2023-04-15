@@ -26,6 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new Exception("Insufficient Amount");
         }
         boolean isValid = false;
+        mode = mode.toLowerCase();
         PaymentMode paymentMode = null;
 
         if(mode.equals("cash") || mode.equals("card") || mode.equals("upi")){
